@@ -49,7 +49,7 @@ fun UsersListComponent(
             ErrorComponent(
                 message = stateUser.message,
                 onRetry = { viewModel.loadUsers()},
-                drawable = R.drawable.outline_wifi_tethering_error_24
+                drawable = R.drawable.outline_error_24
             )
         }
 
@@ -85,7 +85,7 @@ fun UsersListComponent(
                                     text = buildAnnotatedString {
                                         withStyle(SpanStyle(fontWeight = FontWeight.Bold))
                                         {
-                                            append("$label: ")
+                                            append("$label ")
                                         }
                                         append(value)
                                     },

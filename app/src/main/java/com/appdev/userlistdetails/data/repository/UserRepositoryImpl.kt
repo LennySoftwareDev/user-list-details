@@ -5,9 +5,7 @@ import com.appdev.userlistdetails.data.local.mapper.toDomainFromApi
 import com.appdev.userlistdetails.data.local.mapper.toDomainFromLocal
 import com.appdev.userlistdetails.data.local.mapper.toEntity
 import com.appdev.userlistdetails.data.network.NetworkState
-import com.appdev.userlistdetails.data.remote.api.ApiException
 import com.appdev.userlistdetails.data.remote.api.UsersApiService
-import com.appdev.userlistdetails.data.utils.ConstantData.API_ERROR
 import com.appdev.userlistdetails.data.utils.ConstantData.DATA_NOT_EXIST
 import com.appdev.userlistdetails.data.utils.ConstantData.ERROR_400
 import com.appdev.userlistdetails.data.utils.ConstantData.ERROR_500
@@ -31,53 +29,59 @@ class UserRepositoryImpl @Inject constructor(
 
         emit(StateResult.Loading)
 
-        when (networkState.isInternetAvailable()) {
-            true -> {
-                try {
-                    val usersDto = apiService.getUsers()
+        if (networkState.isInternetAvailable()) {
 
-                    val roomUsers = usersDto.map { it.toEntity() }
+            val response = apiService.getUsers()
 
-                    val usersFromApi = usersDto.map { it.toDomainFromApi() }
+            when {
+                response.isSuccessful -> {
+                    val usersDto = response.body().orEmpty()
 
-                    userDao.insertAll(roomUsers)
+                    userDao.insertAll(usersDto.map { it.toEntity() })
 
-                    emit(StateResult.Success(usersFromApi))
+                    emit(
+                        StateResult.Success(
+                            usersDto.map { it.toDomainFromApi() }
+                        )
+                    )
+                }
 
-                } catch (e: Exception) {
-                    when (e) {
-                        is ApiException.ClientError ->
-                            emit(
-                                StateResult.Error(
-                                    "$ERROR_400: ${e.message}"
-                                )
-                            )
+                response.code() == 400 -> {
+                    emit(
+                        StateResult.Error(
+                            "${response.code()} $ERROR_400"
+                        )
+                    )
+                }
 
-                        is ApiException.ServerError ->
-                            emit(
-                                StateResult.Error(
-                                    "$ERROR_500: ${e.message}"
-                                )
-                            )
+                response.code() == 500 -> {
+                    emit(
+                        StateResult.Error(
+                            "${response.code()} $ERROR_500"
+                        )
+                    )
+                }
 
-                        else ->
-                            emit(
-                                StateResult.Error(
-                                    e.message ?: API_ERROR
-                                )
-                            )
-                    }
+                else -> {
+                    emit(
+                        StateResult.Error(
+                            "HTTP ${response.code()}: ${response.message()}"
+                        )
+                    )
                 }
             }
 
-            false -> {
-                val localData = userDao.getAll().firstOrNull() ?: emptyList()
+        } else {
+            val localData = userDao.getAll().firstOrNull().orEmpty()
 
-                if (localData.isNotEmpty()) {
-                    emit(StateResult.Success(localData.map { it.toDomainFromLocal() }))
-                } else {
-                    emit(StateResult.Error(DATA_NOT_EXIST))
-                }
+            if (localData.isNotEmpty()) {
+                emit(
+                    StateResult.Success(
+                        localData.map { it.toDomainFromLocal() }
+                    )
+                )
+            } else {
+                emit(StateResult.Error(DATA_NOT_EXIST))
             }
         }
 

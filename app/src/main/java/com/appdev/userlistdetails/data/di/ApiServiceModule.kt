@@ -1,7 +1,6 @@
 package com.appdev.userlistdetails.data.di
 
 import com.appdev.userlistdetails.data.utils.ConstantData.BASE_URL
-import com.appdev.userlistdetails.data.remote.api.ErrorInterceptor
 import com.appdev.userlistdetails.data.remote.api.LoggingInterceptor
 import com.appdev.userlistdetails.data.remote.api.UsersApiService
 import dagger.Module
@@ -22,11 +21,9 @@ object ApiServiceModule {
     @Singleton
     fun provideOkHttpClient(
         loggingInterceptor: LoggingInterceptor,
-        errorInterceptor: ErrorInterceptor
     ): OkHttpClient {
         return OkHttpClient.Builder()
             .addInterceptor(loggingInterceptor)
-            .addInterceptor(errorInterceptor)
             .connectTimeout(30, TimeUnit.SECONDS)
             .readTimeout(30, TimeUnit.SECONDS)
             .build()
