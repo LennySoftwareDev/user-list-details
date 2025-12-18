@@ -7,4 +7,5 @@ object ConstantData {
     const val ERROR_500 = "Error del servidor "
     const val DATA_NOT_EXIST = "No hay internet y no hay datos locales"
     const val UNEXPECTED_ERROR = "Ocurrió un error inesperado"
+    const val SOCKET_TIMEOUT_EXCEPTION = "Tiempo de espera agotado. Intenta nuevamente"
 }
