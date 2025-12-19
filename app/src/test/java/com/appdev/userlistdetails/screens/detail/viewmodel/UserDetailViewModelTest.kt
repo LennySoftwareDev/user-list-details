@@ -2,7 +2,7 @@ package com.appdev.userlistdetails.screens.detail.viewmodel
 
 import com.appdev.userlistdetails.domain.model.User
 import com.appdev.userlistdetails.domain.usecases.GetUserByIdUseCase
-import com.appdev.userlistdetails.ui.screens.detail.event.UIStateUserDetail
+import com.appdev.userlistdetails.ui.screens.detail.event.UIUserDetailState
 import com.appdev.userlistdetails.ui.screens.detail.viewmodel.UserDetailViewModel
 import com.appdev.userlistdetails.util.MainDispatcherRule
 import io.mockk.coEvery
@@ -47,12 +47,12 @@ class UserDetailViewModelTest {
         viewModel.getUserById(userId)
 
         val state = viewModel.stateUserDetail.first {
-            it is UIStateUserDetail.Content
+            it is UIUserDetailState.Content
         }
 
-        assert(state is UIStateUserDetail.Content)
+        assert(state is UIUserDetailState.Content)
 
-        val content = state as UIStateUserDetail.Content
+        val content = state as UIUserDetailState.Content
 
         assertEquals(user, content.user)
 
@@ -78,10 +78,10 @@ class UserDetailViewModelTest {
         viewModel.getUserById(userId)
 
         val state = viewModel.stateUserDetail.first {
-            it is UIStateUserDetail.Error
+            it is UIUserDetailState.Error
         }
 
-        assert(state is UIStateUserDetail.Error)
-        assertEquals(errorMessage, (state as UIStateUserDetail.Error).message)
+        assert(state is UIUserDetailState.Error)
+        assertEquals(errorMessage, (state as UIUserDetailState.Error).message)
     }
 }

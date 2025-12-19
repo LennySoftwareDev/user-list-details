@@ -18,7 +18,7 @@ import com.appdev.userlistdetails.ui.navigation.NavigationRoutes.USERS_LIST_SCRE
 import com.appdev.userlistdetails.ui.navigation.NavigationRoutes.USER_DETAIL_SCREEN
 import com.appdev.userlistdetails.ui.screens.detail.page.UserDetailScreen
 import com.appdev.userlistdetails.ui.screens.list.page.UsersListScreen
-import com.appdev.userlistdetails.ui.screens.uievent.AppUiEvent
+import com.appdev.userlistdetails.ui.globalevent.AppUiEvent
 import com.appdev.userlistdetails.ui.theme.UserListDetailsTheme
 
 @OptIn(ExperimentalAnimationApi::class)

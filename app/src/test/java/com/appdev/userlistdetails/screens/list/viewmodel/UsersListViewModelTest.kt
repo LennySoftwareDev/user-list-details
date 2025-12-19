@@ -4,7 +4,7 @@ import app.cash.turbine.test
 import com.appdev.userlistdetails.domain.model.User
 import com.appdev.userlistdetails.domain.usecases.GetUsersUseCase
 import com.appdev.userlistdetails.domain.utils.StateResult
-import com.appdev.userlistdetails.ui.screens.list.event.UIUserState
+import com.appdev.userlistdetails.ui.screens.list.event.UIListUserState
 import com.appdev.userlistdetails.ui.screens.list.viewmodel.UsersListViewModel
 import com.appdev.userlistdetails.util.MainDispatcherRule
 import io.mockk.coEvery
@@ -52,12 +52,12 @@ class UsersListViewModelTest {
         viewModel.loadUsers()
 
         viewModel.stateUsers
-            .filterNot { it is UIUserState.Loading }
+            .filterNot { it is UIListUserState.Loading }
             .test {
 
                 val success = awaitItem()
-                assert(success is UIUserState.Success)
-                assertEquals(users, (success as UIUserState.Success).users)
+                assert(success is UIListUserState.Success)
+                assertEquals(users, (success as UIListUserState.Success).users)
 
                 cancelAndIgnoreRemainingEvents()
             }
@@ -77,8 +77,8 @@ class UsersListViewModelTest {
         viewModel.stateUsers.test {
 
             val errorState = awaitItem()
-            assert(errorState is UIUserState.Error)
-            assertEquals(errorMessage, (errorState as UIUserState.Error).message)
+            assert(errorState is UIListUserState.Error)
+            assertEquals(errorMessage, (errorState as UIListUserState.Error).message)
 
             cancelAndIgnoreRemainingEvents()
         }

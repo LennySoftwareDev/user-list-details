@@ -7,7 +7,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.appdev.userlistdetails.ui.screens.detail.content.UserDetailComponent
 import com.appdev.userlistdetails.ui.screens.detail.viewmodel.UserDetailViewModel
-import com.appdev.userlistdetails.ui.screens.uievent.AppUiEvent
+import com.appdev.userlistdetails.ui.globalevent.AppUiEvent
 
 @Composable
 fun UserDetailScreen(

@@ -1,6 +1,6 @@
 package com.appdev.userlistdetails.ui.screens.list.content
 
-import androidx.activity.compose.LocalActivity
+import android.app.Activity
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -23,29 +23,38 @@ import com.appdev.userlistdetails.ui.components.PullToRefreshComponent
 import com.appdev.userlistdetails.ui.components.ScaffoldComponent
 import com.appdev.userlistdetails.ui.components.TextComponent
 import com.appdev.userlistdetails.ui.components.ThemeToggleComponent
-import com.appdev.userlistdetails.ui.navigation.Screen
-import com.appdev.userlistdetails.ui.screens.list.event.UIUserState
+import com.appdev.userlistdetails.ui.screens.list.event.UIListUserEvent
+import com.appdev.userlistdetails.ui.screens.list.event.UIListUserState
 import com.appdev.userlistdetails.ui.screens.list.viewmodel.UsersListViewModel
 
 @Composable
 fun UsersListComponent(
     viewModel: UsersListViewModel,
-    stateUser: UIUserState,
+    stateUser: UIListUserState,
     navController: NavController,
     isDarkMode: Boolean = false,
-    onToggleChange: (Boolean) -> Unit = {}
+    onToggleChange: (Boolean) -> Unit = {},
+    activity: Activity?
 ) {
-    val activity = LocalActivity.current
 
     LaunchedEffect(true) { viewModel.loadUsers() }
 
+    LaunchedEffect(Unit){
+        viewModel.uiEvent.collect { event ->
+            when (event) {
+                is UIListUserEvent.NavigateTo -> navController.navigate(event.route)
+                is UIListUserEvent.ExitApp -> activity?.finish()
+            }
+        }
+    }
+
     when (stateUser) {
 
-        is UIUserState.Loading -> {
+        is UIListUserState.Loading -> {
             CircularProgressComponent()
         }
 
-        is UIUserState.Error -> {
+        is UIListUserState.Error -> {
             ErrorComponent(
                 message = stateUser.message,
                 onRetry = { viewModel.loadUsers()},
@@ -53,11 +62,11 @@ fun UsersListComponent(
             )
         }
 
-        is UIUserState.Success -> {
+        is UIListUserState.Success -> {
             ScaffoldComponent(
                 title = "Users List",
                 icon = Icons.AutoMirrored.Filled.ExitToApp,
-                onBackClick = { activity?.finish() },
+                onBackClick = { viewModel.exitApp() },
                 actions = {
                     ThemeToggleComponent(
                         isDarkMode = isDarkMode,
@@ -74,9 +83,7 @@ fun UsersListComponent(
                 ) { user ->
                     CardComponent(
                         onClick = {
-                            navController.navigate(
-                                Screen.UserDetailScreen.route.plus("/${user.id}")
-                            )
+                            viewModel.navigateToUserDetail(user.id)
                         }
                     ) {
                         Column(

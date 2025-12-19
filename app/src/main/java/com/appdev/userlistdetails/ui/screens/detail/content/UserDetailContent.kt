@@ -29,14 +29,15 @@ import com.appdev.userlistdetails.ui.components.ImagenComponent
 import com.appdev.userlistdetails.ui.components.ScaffoldComponent
 import com.appdev.userlistdetails.ui.components.TextComponent
 import com.appdev.userlistdetails.ui.components.ThemeToggleComponent
-import com.appdev.userlistdetails.ui.screens.detail.event.UIStateUserDetail
+import com.appdev.userlistdetails.ui.screens.detail.event.UIUserDetailState
+import com.appdev.userlistdetails.ui.screens.detail.event.UIUserDetailEvent
 import com.appdev.userlistdetails.ui.screens.detail.viewmodel.UserDetailViewModel
 
 
 @Composable
 fun UserDetailComponent(
     viewModel: UserDetailViewModel,
-    stateUserDetail: UIStateUserDetail,
+    stateUserDetail: UIUserDetailState,
     navController: NavController,
     userId: Int,
     isDarkMode: Boolean = false,
@@ -47,21 +48,29 @@ fun UserDetailComponent(
         viewModel.getUserById(userId)
     }
 
+    LaunchedEffect(Unit){
+        viewModel.uiEvent.collect { event ->
+            when (event) {
+                is UIUserDetailEvent.NavigateBack -> navController.popBackStack()
+            }
+        }
+    }
+
     when (stateUserDetail) {
-        is UIStateUserDetail.Loading -> CircularProgressComponent()
-        is UIStateUserDetail.Error -> {
+        is UIUserDetailState.Loading -> CircularProgressComponent()
+        is UIUserDetailState.Error -> {
             ErrorComponent(
                 message = stateUserDetail.message,
                 onRetry = { viewModel.getUserById(userId) },
                 drawable = R.drawable.outline_person_cancel_24
             )
         }
-        is UIStateUserDetail.Content -> {
+        is UIUserDetailState.Content -> {
 
             ScaffoldComponent(
                 title = "User Detail",
                 icon = Icons.AutoMirrored.Filled.ArrowBack,
-                onBackClick = { navController.popBackStack() },
+                onBackClick = { viewModel.navigateBack() },
                 actions = {
                     ThemeToggleComponent(
                         isDarkMode = isDarkMode,
