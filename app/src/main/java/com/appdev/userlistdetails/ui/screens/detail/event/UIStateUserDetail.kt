@@ -6,7 +6,7 @@ sealed class UIStateUserDetail {
     object Loading : UIStateUserDetail()
     data class Content(
         val user: User,
-        val detail: List<Pair<String,String>>
+        val detail: List<Pair<String, String>>
     ) : UIStateUserDetail()
     data class Error(val message: String) : UIStateUserDetail()
 }

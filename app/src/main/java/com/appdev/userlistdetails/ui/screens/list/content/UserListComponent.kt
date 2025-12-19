@@ -7,16 +7,13 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.appdev.userlistdetails.R
 import com.appdev.userlistdetails.ui.components.CardComponent
@@ -25,17 +22,20 @@ import com.appdev.userlistdetails.ui.components.ErrorComponent
 import com.appdev.userlistdetails.ui.components.PullToRefreshComponent
 import com.appdev.userlistdetails.ui.components.ScaffoldComponent
 import com.appdev.userlistdetails.ui.components.TextComponent
+import com.appdev.userlistdetails.ui.components.ThemeToggleComponent
 import com.appdev.userlistdetails.ui.navigation.Screen
 import com.appdev.userlistdetails.ui.screens.list.event.UIUserState
 import com.appdev.userlistdetails.ui.screens.list.viewmodel.UsersListViewModel
 
 @Composable
 fun UsersListComponent(
-    viewModel: UsersListViewModel = hiltViewModel(),
-    navController: NavController
+    viewModel: UsersListViewModel,
+    stateUser: UIUserState,
+    navController: NavController,
+    isDarkMode: Boolean = false,
+    onToggleChange: (Boolean) -> Unit = {}
 ) {
     val activity = LocalActivity.current
-    val stateUser = viewModel.stateUsers.collectAsState().value
 
     LaunchedEffect(true) { viewModel.loadUsers() }
 
@@ -57,7 +57,13 @@ fun UsersListComponent(
             ScaffoldComponent(
                 title = "Users List",
                 icon = Icons.AutoMirrored.Filled.ExitToApp,
-                onBackClick = { activity?.finish() }
+                onBackClick = { activity?.finish() },
+                actions = {
+                    ThemeToggleComponent(
+                        isDarkMode = isDarkMode,
+                        onToggleChange = onToggleChange
+                    )
+                }
             ) { paddingValues ->
 
                 PullToRefreshComponent(
@@ -89,8 +95,7 @@ fun UsersListComponent(
                                         }
                                         append(value)
                                     },
-                                    fontSize = 24.sp,
-                                    color = Color.Black
+                                    fontSize = 24.sp
                                 )
                             }
                         }

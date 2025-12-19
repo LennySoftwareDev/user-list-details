@@ -9,11 +9,10 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -21,7 +20,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.appdev.userlistdetails.R
 import com.appdev.userlistdetails.ui.components.CardComponent
@@ -30,22 +28,24 @@ import com.appdev.userlistdetails.ui.components.ErrorComponent
 import com.appdev.userlistdetails.ui.components.ImagenComponent
 import com.appdev.userlistdetails.ui.components.ScaffoldComponent
 import com.appdev.userlistdetails.ui.components.TextComponent
+import com.appdev.userlistdetails.ui.components.ThemeToggleComponent
 import com.appdev.userlistdetails.ui.screens.detail.event.UIStateUserDetail
 import com.appdev.userlistdetails.ui.screens.detail.viewmodel.UserDetailViewModel
 
 
 @Composable
 fun UserDetailComponent(
-    viewModel: UserDetailViewModel = hiltViewModel(),
+    viewModel: UserDetailViewModel,
+    stateUserDetail: UIStateUserDetail,
     navController: NavController,
-    userId: Int
+    userId: Int,
+    isDarkMode: Boolean = false,
+    onToggleChange: (Boolean) -> Unit = {}
 ) {
 
     LaunchedEffect(userId) {
         viewModel.getUserById(userId)
     }
-
-    val stateUserDetail = viewModel.stateUserDetail.collectAsState().value
 
     when (stateUserDetail) {
         is UIStateUserDetail.Loading -> CircularProgressComponent()
@@ -61,7 +61,13 @@ fun UserDetailComponent(
             ScaffoldComponent(
                 title = "User Detail",
                 icon = Icons.AutoMirrored.Filled.ArrowBack,
-                onBackClick = { navController.popBackStack() }
+                onBackClick = { navController.popBackStack() },
+                actions = {
+                    ThemeToggleComponent(
+                        isDarkMode = isDarkMode,
+                        onToggleChange = onToggleChange
+                    )
+                }
             ) { paddingValues ->
                 Column(
                     modifier = Modifier.padding(paddingValues)
@@ -80,7 +86,7 @@ fun UserDetailComponent(
                             append(stateUserDetail.user.name)
                         },
                         fontSize = 48.sp,
-                        color = Color.Black,
+                        color = MaterialTheme.colorScheme.onSurface,
                         textAlign = TextAlign.Center
                     )
                     CardComponent{
@@ -92,8 +98,7 @@ fun UserDetailComponent(
                                     }
                                     append(value)
                                 },
-                                fontSize = 24.sp,
-                                color = Color.Black
+                                fontSize = 24.sp
                             )
                         }
                     }

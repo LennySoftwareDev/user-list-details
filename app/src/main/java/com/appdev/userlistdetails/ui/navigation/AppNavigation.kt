@@ -5,6 +5,10 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -14,52 +18,72 @@ import com.appdev.userlistdetails.ui.navigation.NavigationRoutes.USERS_LIST_SCRE
 import com.appdev.userlistdetails.ui.navigation.NavigationRoutes.USER_DETAIL_SCREEN
 import com.appdev.userlistdetails.ui.screens.detail.page.UserDetailScreen
 import com.appdev.userlistdetails.ui.screens.list.page.UsersListScreen
+import com.appdev.userlistdetails.ui.screens.uievent.AppUiEvent
+import com.appdev.userlistdetails.ui.theme.UserListDetailsTheme
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
+    var isDarkMode by rememberSaveable { mutableStateOf(false) }
 
-    NavHost(
-        navController = navController,
-        startDestination = USERS_LIST_SCREEN
-    ) {
-        composable(
-            route = USERS_LIST_SCREEN,
-            exitTransition = {
-                slideOutHorizontally(
-                    targetOffsetX = { -it },
-                    animationSpec = tween(durationMillis = 500)
-                )
-            },
-            popEnterTransition = {
-                slideInHorizontally(
-                    initialOffsetX = { -it },
-                    animationSpec = tween(durationMillis = 500)
-                )
-            }
-        ) {
-            UsersListScreen(navController = navController)
+    val handleAppEventDarkMode: (AppUiEvent) -> Unit = { event ->
+       when (event) {
+            is AppUiEvent.ToggleDarkMode -> isDarkMode = event.enabled
         }
-        composable(
-            route = USER_DETAIL_SCREEN,
-            arguments = listOf(navArgument("userId"){type = NavType.IntType}),
-            exitTransition = {
-                slideOutHorizontally(
-                    targetOffsetX = { it },
-                    animationSpec = tween(durationMillis = 500)
-                )
-            },
-            popEnterTransition = {
-                slideInHorizontally(
-                    initialOffsetX = { it },
-                    animationSpec = tween(durationMillis = 500)
+    }
+
+    UserListDetailsTheme(
+        darkTheme = isDarkMode,
+        dynamicColor = false,
+    ) {
+        NavHost(
+            navController = navController,
+            startDestination = USERS_LIST_SCREEN
+        ) {
+            composable(
+                route = USERS_LIST_SCREEN,
+                exitTransition = {
+                    slideOutHorizontally(
+                        targetOffsetX = { -it },
+                        animationSpec = tween(durationMillis = 500)
+                    )
+                },
+                popEnterTransition = {
+                    slideInHorizontally(
+                        initialOffsetX = { -it },
+                        animationSpec = tween(durationMillis = 500)
+                    )
+                }
+            ) {
+                UsersListScreen(
+                    navController = navController, isDarkMode = isDarkMode,
+                    onAppEvent = handleAppEventDarkMode
                 )
             }
-        ) { navBackStackEntry ->
-            val id = navBackStackEntry.arguments?.getInt("userId") ?: 0
+            composable(
+                route = USER_DETAIL_SCREEN,
+                arguments = listOf(navArgument("userId") { type = NavType.IntType }),
+                exitTransition = {
+                    slideOutHorizontally(
+                        targetOffsetX = { it },
+                        animationSpec = tween(durationMillis = 500)
+                    )
+                },
+                popEnterTransition = {
+                    slideInHorizontally(
+                        initialOffsetX = { it },
+                        animationSpec = tween(durationMillis = 500)
+                    )
+                }
+            ) { navBackStackEntry ->
+                val id = navBackStackEntry.arguments?.getInt("userId") ?: 0
 
-            UserDetailScreen(navController = navController, userId = id)
+                UserDetailScreen(
+                    navController = navController, userId = id, isDarkMode = isDarkMode,
+                    onAppEvent = handleAppEventDarkMode
+                )
+            }
         }
     }
 }

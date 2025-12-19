@@ -1,5 +1,6 @@
 package com.appdev.userlistdetails.ui.components
 
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -23,7 +24,7 @@ fun TextComponent(
     style: TextStyle = TextStyle.Default,
     maxLines: Int = Int.MAX_VALUE,
     textAlign: TextAlign = TextAlign.Start,
-    color: Color = Color.Unspecified,
+    color: Color = MaterialTheme.colorScheme.onSurface,
     overflow: TextOverflow = TextOverflow.Ellipsis
 ) {
     Text(
